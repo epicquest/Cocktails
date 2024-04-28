@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
 
                 CocktailViewModel(CocktailRepository(cocktailService, cocktailDao))
             }*/
-            MainScreenNavigation(viewModel = cocktailViewModel, )
+            MainScreenNavigation(viewModel = cocktailViewModel)
 
         }
     }

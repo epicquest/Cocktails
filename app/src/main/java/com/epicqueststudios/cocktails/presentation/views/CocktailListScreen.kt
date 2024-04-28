@@ -75,7 +75,7 @@ fun CocktailListScreen(viewModel: CocktailViewModel, navController: NavHostContr
             )
         }
     Column {
-        Text(text = "Cocktails", style = MaterialTheme.typography.headlineMedium)
+        Text(text = stringResource(R.string.cocktails), style = MaterialTheme.typography.headlineMedium)
         if (cocktails.value.isEmpty()) {
             if (searchQuery.isEmpty() || cocktailOfTheDay == null)
                 CircularProgressIndicator()
@@ -84,8 +84,10 @@ fun CocktailListScreen(viewModel: CocktailViewModel, navController: NavHostContr
         } else {
             LazyColumn {
                 items(cocktails.value) { cocktail ->
-                    CocktailListItem(cocktail = cocktail) { selectedItemId ->
-                        navController.navigate("detail/${selectedItemId}")
+                    CocktailListItem(cocktail = cocktail) {
+                        viewModel.insertCocktail(cocktail)
+                        //viewModel.getCocktail(cocktail.idDrink)
+                        navController.navigate("detail/${cocktail.idDrink}")
                     }
                 }
             }
@@ -95,10 +97,10 @@ fun CocktailListScreen(viewModel: CocktailViewModel, navController: NavHostContr
 }
 
 @Composable
-fun CocktailListItem(cocktail: CocktailModel, onItemClicked: (String) -> Unit) {
+fun CocktailListItem(cocktail: CocktailModel, onItemClicked: () -> Unit) {
     Card {
         Row(modifier = Modifier.padding(8.dp).clickable {
-            onItemClicked(cocktail.idDrink)
+            onItemClicked()
         }) {
             Image(
                 painter = rememberAsyncImagePainter(cocktail.image),

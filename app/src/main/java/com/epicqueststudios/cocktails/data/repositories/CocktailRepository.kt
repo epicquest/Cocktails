@@ -8,4 +8,7 @@ abstract class CocktailRepository {
     abstract suspend fun getCocktailOfTheDay(): CocktailResponse
     abstract suspend fun getCocktails(): List<CocktailModel>
     abstract suspend fun getFavouriteCocktails(): List<CocktailModel>
+    abstract suspend fun insertCocktail(item: CocktailModel)
+    abstract suspend fun updateCocktail(item: CocktailModel): CocktailModel
+    abstract suspend fun getCocktail(id: String): CocktailModel?
 }

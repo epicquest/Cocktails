@@ -40,4 +40,15 @@ class CocktailRepositoryImpl(
 
     override suspend fun getCocktailOfTheDay(): CocktailResponse = cocktailService.downloadCocktailOfTheDay()
     override suspend fun getFavouriteCocktails(): List<CocktailModel> = cocktailDao.getFavouritesCocktails()
+    override suspend fun insertCocktail(item: CocktailModel) = cocktailDao.insertCocktail(item)
+
+
+    override suspend fun updateCocktail(item: CocktailModel): CocktailModel {
+        cocktailDao.updateCocktail(item)
+        return item
+    }
+
+
+    override suspend fun getCocktail(id: String) = cocktailDao.getCocktail(id)
+
 }

@@ -12,7 +12,7 @@ import com.epicqueststudios.cocktails.di.component.DaggerViewModelComponent
 import com.epicqueststudios.cocktails.di.component.ViewModelComponent
 import com.epicqueststudios.cocktails.di.module.AppModule
 import com.epicqueststudios.cocktails.di.module.VMFactoryModule
-import com.epicqueststudios.cocktails.domain.CocktailOfTheDayUseCase
+import com.epicqueststudios.cocktails.domain.CocktailsUseCase
 import com.epicqueststudios.cocktails.domain.DownloadCocktailsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +25,7 @@ import kotlin.coroutines.CoroutineContext
 class CocktailViewModel(app: Application,
                         private var uiContext: CoroutineContext,
                         private val downloadImagesUseCase: DownloadCocktailsUseCase,
-                        private val cocktailOfTheDayUseCase: CocktailOfTheDayUseCase
+                        private val cocktailsUseCase: CocktailsUseCase
     ) : ViewModel(), CoroutineScope {
 
     lateinit var component: ViewModelComponent
@@ -48,8 +48,8 @@ class CocktailViewModel(app: Application,
     val cocktails: State<List<CocktailModel>> = _cocktails
     private val _cocktailOfTheDay = mutableStateOf<CocktailModel?>(null)
     val cocktailOfTheDay: State<CocktailModel?> = _cocktailOfTheDay
-    private val _selectedItem = mutableStateOf<CocktailModel?>(null)
-    val selectedItem: State<CocktailModel?> = _selectedItem
+    private val _selectedCocktail = mutableStateOf<CocktailModel?>(null)
+    val selectedCocktail: State<CocktailModel?> = _selectedCocktail
 
     fun searchCocktails(searchTerm: String) {
         viewModelScope.launch {
@@ -60,7 +60,7 @@ class CocktailViewModel(app: Application,
     fun getCocktailOfTheDay() {
         viewModelScope.launch {
             try {
-                val cocktailOfTheDay = cocktailOfTheDayUseCase.getCocktailOfTheDay()
+                val cocktailOfTheDay = cocktailsUseCase.getCocktailOfTheDay()
                 //_cocktails.value = cocktailOfTheDay
                 _cocktailOfTheDay.value = cocktailOfTheDay
             } catch (e: Exception) {
@@ -72,9 +72,9 @@ class CocktailViewModel(app: Application,
     fun getCocktailOfTheDayAndFavorites() {
         viewModelScope.launch {
             try {
-                val favorites = cocktailOfTheDayUseCase.getFavourites()
+                val favorites = cocktailsUseCase.getFavourites()
                 _cocktails.value = favorites
-                cocktailOfTheDayUseCase.getCocktailOfTheDay()?.also {
+                cocktailsUseCase.getCocktailOfTheDay()?.also {
                     _cocktailOfTheDay.value = it
                     _cocktails.value = favorites.plus(it)
                 }
@@ -91,20 +91,42 @@ class CocktailViewModel(app: Application,
             getCocktailOfTheDayAndFavorites()
         }
     }
+
+    fun insertCocktail(item: CocktailModel) {
+        viewModelScope.launch {
+            val res = cocktailsUseCase.insertCocktail(item)
+            _selectedCocktail.value = item
+        }
+    }
+    fun getCocktail(id: String) {
+        viewModelScope.launch {
+            _selectedCocktail.value = cocktailsUseCase.getCocktail(id)
+        }
+    }
+
+    fun updateFavorites(item: CocktailModel?) {
+        viewModelScope.launch {
+            item?.let {
+                it.isFavourite = !it.isFavourite
+                _selectedCocktail.value = cocktailsUseCase.updateCocktail(it)
+            }
+        }
+    }
+
     companion object {
 
         @Suppress("UNCHECKED_CAST")
         class Factory(
             private val app: Application,
             private val downloadCocktailsUseCase: DownloadCocktailsUseCase,
-            private val cocktailOfTheDayUseCase: CocktailOfTheDayUseCase
+            private val cocktailsUseCase: CocktailsUseCase
         ) : ViewModelProvider.NewInstanceFactory() {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return CocktailViewModel(
                     app,
                     Dispatchers.Main,
                     downloadCocktailsUseCase,
-                    cocktailOfTheDayUseCase
+                    cocktailsUseCase
                 ) as T
             }
         }

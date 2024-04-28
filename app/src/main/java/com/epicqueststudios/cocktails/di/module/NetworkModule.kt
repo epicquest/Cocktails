@@ -7,7 +7,7 @@ import com.epicqueststudios.cocktails.data.db.CocktailDatabase
 import com.epicqueststudios.cocktails.data.repositories.CocktailRepository
 import com.epicqueststudios.cocktails.data.repositories.CocktailRepositoryImpl
 import com.epicqueststudios.cocktails.data.services.CocktailService
-import com.epicqueststudios.cocktails.domain.CocktailOfTheDayUseCase
+import com.epicqueststudios.cocktails.domain.CocktailsUseCase
 import com.epicqueststudios.cocktails.domain.DownloadCocktailsUseCase
 import dagger.Module
 import dagger.Provides
@@ -69,7 +69,7 @@ class NetworkModule {
 
     @Singleton
     @Provides
-    fun provideCocktailOfTheDayUseCase(repository: CocktailRepository): CocktailOfTheDayUseCase = CocktailOfTheDayUseCase(repository)
+    fun provideCocktailOfTheDayUseCase(repository: CocktailRepository): CocktailsUseCase = CocktailsUseCase(repository)
 
     companion object  {
         const val BASE_URL = "https://www.thecocktaildb.com/api/json/v1/1/"
