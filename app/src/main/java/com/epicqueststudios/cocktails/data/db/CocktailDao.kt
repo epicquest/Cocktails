@@ -9,7 +9,7 @@ import com.epicqueststudios.cocktails.data.models.CocktailModel
 @Dao
 interface CocktailDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCocktails(cocktails: List<CocktailModel>)
 
     @Query("SELECT * FROM cocktails")

@@ -1,7 +1,7 @@
 package com.epicqueststudios.cocktails.presentation.views
 
-import android.widget.SearchView
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,21 +14,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,25 +31,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.epicqueststudios.cocktails.R
 import com.epicqueststudios.cocktails.data.models.CocktailModel
 import com.epicqueststudios.cocktails.presentation.viewmodels.CocktailViewModel
 import timber.log.Timber
 
 
 @Composable
-fun CocktailListScreen(viewModel: CocktailViewModel) {
-    val cocktails = viewModel.cocktails.value
+fun CocktailListScreen(viewModel: CocktailViewModel, navController: NavHostController) {
+    val cocktails = viewModel.cocktails
     val cocktailOfTheDay = viewModel.cocktailOfTheDay.value
     var searchQuery by remember { mutableStateOf("") }
 
     Card {
-    Column {
+    /*Column {
         Text(text = "Cocktail Of The Day", style = MaterialTheme.typography.headlineMedium)
         if (cocktailOfTheDay == null) {
             CircularProgressIndicator()
@@ -63,25 +60,33 @@ fun CocktailListScreen(viewModel: CocktailViewModel) {
                 CocktailListItem(cocktailOfTheDay)
             }
         }
-    }
-        Column {
+    }*/
+    Column {
             SearchView(
                 modifier = Modifier.padding(16.dp),
                 onSearch = { query ->
                     searchQuery = query
                     Timber.d("Search query: $query")
                     viewModel.searchCocktails(searchQuery)
+                },
+                onTextChange = {
+                      viewModel.onTextChange(it)
                 }
             )
         }
     Column {
         Text(text = "Cocktails", style = MaterialTheme.typography.headlineMedium)
-        if (cocktails.isEmpty()) {
-            Text(text = "No Favourites", style = MaterialTheme.typography.headlineMedium)
+        if (cocktails.value.isEmpty()) {
+            if (searchQuery.isEmpty() || cocktailOfTheDay == null)
+                CircularProgressIndicator()
+            else
+                Text( text = stringResource(R.string.no_cocktails_found), style = MaterialTheme.typography.headlineMedium)
         } else {
             LazyColumn {
-                items(cocktails) { cocktail ->
-                    CocktailListItem(cocktail = cocktail)
+                items(cocktails.value) { cocktail ->
+                    CocktailListItem(cocktail = cocktail) { selectedItemId ->
+                        navController.navigate("detail/${selectedItemId}")
+                    }
                 }
             }
         }
@@ -90,9 +95,11 @@ fun CocktailListScreen(viewModel: CocktailViewModel) {
 }
 
 @Composable
-fun CocktailListItem(cocktail: CocktailModel) {
+fun CocktailListItem(cocktail: CocktailModel, onItemClicked: (String) -> Unit) {
     Card {
-        Row(modifier = Modifier.padding(8.dp)) {
+        Row(modifier = Modifier.padding(8.dp).clickable {
+            onItemClicked(cocktail.idDrink)
+        }) {
             Image(
                 painter = rememberAsyncImagePainter(cocktail.image),
                 contentDescription = cocktail.name,
@@ -101,7 +108,6 @@ fun CocktailListItem(cocktail: CocktailModel) {
             Spacer(modifier = Modifier.width(8.dp))
             Column {
                 Text(text = cocktail.name, style = MaterialTheme.typography.bodyMedium)
-                // Optional: Show instructions with another Text composable
             }
         }
     }
@@ -109,7 +115,7 @@ fun CocktailListItem(cocktail: CocktailModel) {
 @Composable
 private fun SearchFieldPlaceholder() {
     Text(
-        text = "Search...",
+        text = stringResource(R.string.search),
         color = Color.Gray,
         style = TextStyle.Default.copy(fontSize = 16.sp)
     )
@@ -118,70 +124,42 @@ private fun SearchFieldPlaceholder() {
 @Composable
 fun SearchView(
     modifier: Modifier = Modifier,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    onTextChange: (String) -> Unit
 ) {
     val searchQuery = remember { mutableStateOf("") }
 
     TextField(
         value = searchQuery.value,
-        onValueChange = { searchQuery.value = it },
+        onValueChange = {
+            onTextChange(it)
+            searchQuery.value = it
+                        },
         modifier = modifier.fillMaxWidth(),
         placeholder = { SearchFieldPlaceholder() },
         singleLine = true,
-      /*  colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = Color.Transparent
-        ),*/
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {
             onSearch(searchQuery.value)
         }),
         leadingIcon = {
             IconButton(onClick = { /* Handle leading icon click */ }) {
-                Icon(
-                    painter = painterResource(id = android.R.drawable.ic_input_get),
-                    contentDescription = null
-                )
+                Icon(Icons.Default.Home, contentDescription = stringResource(R.string.search_cocktails))
             }
         },
         trailingIcon = {
-            if (searchQuery.value.isNotEmpty()) {
-                IconButton(onClick = { searchQuery.value = "" }) {
-                    Icon(
-                        painter = painterResource(id = android.R.drawable.ic_menu_close_clear_cancel),
-                        contentDescription = null
-                    )
+            IconButton(onClick = {
+                if (searchQuery.value.isNotEmpty()) {
+                    searchQuery.value = ""
+                    onTextChange("")
+                }
+            }) {
+                if (searchQuery.value.isNotEmpty()) {
+                    Icon(Icons.Filled.Clear, contentDescription = stringResource(R.string.search_clear) )
+                } else {
+                    Icon(Icons.Default.Search, contentDescription = stringResource(R.string.start_search))
                 }
             }
         }
     )
 }
-/*
-@Composable
-fun SearchView(
-    searchText: String,
-    onQueryChange: (String) -> Unit,
-    isSearchExpanded: Boolean,
-    onToggleSearch: () -> Unit
-) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        OutlinedTextField(
-            value = searchText,
-            onValueChange = onQueryChange,
-            modifier = Modifier.fillMaxWidth(0.8f),
-            placeholder = "Search...",
-            trailingIcon = {
-                IconButton(onClick = onToggleSearch) {
-                    if (isSearchExpanded) {
-                        Icon(Icons.Filled.Close, contentDescription = "Clear search")
-                    } else {
-                        Icon(Icons.Filled.Search, contentDescription = "Start search")
-                    }
-                }
-            }
-        )
-        if (isSearchExpanded) {
-            // Additional search options UI
-        }
-    }
-}
-*/

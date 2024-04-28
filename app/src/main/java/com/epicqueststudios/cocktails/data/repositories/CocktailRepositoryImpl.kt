@@ -19,13 +19,25 @@ class CocktailRepositoryImpl(
         } else {
             return cachedCocktails
         }*/
-        val cachedCocktails = cocktailDao.getFavouritesCocktails()
+
         //if (cachedCocktails.isEmpty()) {
-            val networkCocktails = cocktailService.searchCocktails(searchTerm)
-            cocktailDao.insertCocktails(networkCocktails.drinks)
+         //   val networkCocktails = cocktailService.searchCocktails(searchTerm)
+         //   if (networkCocktails.drinks?.isNotEmpty() == true)
+         //       cocktailDao.insertCocktails(networkCocktails.drinks)
        // }
-        return cachedCocktails.plus(networkCocktails.drinks)
+        return cocktailService.searchCocktails(searchTerm).drinks ?: listOf()
+    }
+
+    override suspend fun getCocktails(): List<CocktailModel> {
+        val favouriteCocktails = cocktailDao.getFavouritesCocktails()
+        if (favouriteCocktails.isNotEmpty()) {
+           // favouriteCocktails
+        }
+        val networkCocktails = cocktailService.downloadCocktailOfTheDay()
+
+        return favouriteCocktails.plus(networkCocktails.drinks ?: listOf())
     }
 
     override suspend fun getCocktailOfTheDay(): CocktailResponse = cocktailService.downloadCocktailOfTheDay()
+    override suspend fun getFavouriteCocktails(): List<CocktailModel> = cocktailDao.getFavouritesCocktails()
 }

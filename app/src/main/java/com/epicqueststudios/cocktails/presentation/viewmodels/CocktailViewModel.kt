@@ -27,6 +27,7 @@ class CocktailViewModel(app: Application,
                         private val downloadImagesUseCase: DownloadCocktailsUseCase,
                         private val cocktailOfTheDayUseCase: CocktailOfTheDayUseCase
     ) : ViewModel(), CoroutineScope {
+
     lateinit var component: ViewModelComponent
     @Inject
     lateinit var repository: CocktailRepository
@@ -47,21 +48,47 @@ class CocktailViewModel(app: Application,
     val cocktails: State<List<CocktailModel>> = _cocktails
     private val _cocktailOfTheDay = mutableStateOf<CocktailModel?>(null)
     val cocktailOfTheDay: State<CocktailModel?> = _cocktailOfTheDay
-
+    private val _selectedItem = mutableStateOf<CocktailModel?>(null)
+    val selectedItem: State<CocktailModel?> = _selectedItem
 
     fun searchCocktails(searchTerm: String) {
         viewModelScope.launch {
+            _cocktails.value = listOf()
             _cocktails.value = downloadImagesUseCase.getCocktails(searchTerm)
         }
     }
     fun getCocktailOfTheDay() {
         viewModelScope.launch {
             try {
-                _cocktailOfTheDay.value = cocktailOfTheDayUseCase.getCocktail()
+                val cocktailOfTheDay = cocktailOfTheDayUseCase.getCocktailOfTheDay()
+                //_cocktails.value = cocktailOfTheDay
+                _cocktailOfTheDay.value = cocktailOfTheDay
             } catch (e: Exception) {
                 Timber.e(e)
             }
 
+        }
+    }
+    fun getCocktailOfTheDayAndFavorites() {
+        viewModelScope.launch {
+            try {
+                val favorites = cocktailOfTheDayUseCase.getFavourites()
+                _cocktails.value = favorites
+                cocktailOfTheDayUseCase.getCocktailOfTheDay()?.also {
+                    _cocktailOfTheDay.value = it
+                    _cocktails.value = favorites.plus(it)
+                }
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
+        }
+    }
+
+    fun onTextChange(text: String) {
+        if (text.isNotEmpty()) {
+            _cocktails.value = listOf()
+        } else {
+            getCocktailOfTheDayAndFavorites()
         }
     }
     companion object {

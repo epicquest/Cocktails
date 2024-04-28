@@ -7,7 +7,6 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.lifecycle.ViewModelProvider
 import com.epicqueststudios.cocktails.di.component.ActivityComponent
 import com.epicqueststudios.cocktails.di.component.AppComponent
 import com.epicqueststudios.cocktails.di.component.DaggerActivityComponent
@@ -16,6 +15,7 @@ import com.epicqueststudios.cocktails.di.module.AppModule
 import com.epicqueststudios.cocktails.di.module.VMFactoryModule
 import com.epicqueststudios.cocktails.presentation.viewmodels.CocktailViewModel
 import com.epicqueststudios.cocktails.presentation.views.CocktailListScreen
+import com.epicqueststudios.cocktails.presentation.views.MainScreenNavigation
 import javax.inject.Inject
 
 class MainActivity : ComponentActivity() {
@@ -47,8 +47,7 @@ class MainActivity : ComponentActivity() {
 
                 CocktailViewModel(CocktailRepository(cocktailService, cocktailDao))
             }*/
-
-            CocktailListScreen(viewModel = cocktailViewModel)
+            MainScreenNavigation(viewModel = cocktailViewModel, )
 
         }
     }
@@ -61,7 +60,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        cocktailViewModel.getCocktailOfTheDay()
+        cocktailViewModel.getCocktailOfTheDayAndFavorites()
     }
 }
 
