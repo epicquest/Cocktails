@@ -2,6 +2,7 @@ package com.epicqueststudios.cocktails.data.repositories
 
 import com.epicqueststudios.cocktails.data.db.CocktailDao
 import com.epicqueststudios.cocktails.data.models.CocktailModel
+import com.epicqueststudios.cocktails.data.network.CocktailResponse
 import com.epicqueststudios.cocktails.data.services.CocktailService
 
 class CocktailRepositoryImpl(
@@ -18,11 +19,13 @@ class CocktailRepositoryImpl(
         } else {
             return cachedCocktails
         }*/
-        val cachedCocktails = cocktailDao.getCocktails()
-        if (cachedCocktails.isEmpty()) {
+        val cachedCocktails = cocktailDao.getFavouritesCocktails()
+        //if (cachedCocktails.isEmpty()) {
             val networkCocktails = cocktailService.searchCocktails(searchTerm)
             cocktailDao.insertCocktails(networkCocktails.drinks)
-        }
-        return cocktailDao.getCocktails()
+       // }
+        return cachedCocktails.plus(networkCocktails.drinks)
     }
+
+    override suspend fun getCocktailOfTheDay(): CocktailResponse = cocktailService.downloadCocktailOfTheDay()
 }

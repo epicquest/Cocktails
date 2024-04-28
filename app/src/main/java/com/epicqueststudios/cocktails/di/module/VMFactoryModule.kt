@@ -1,6 +1,7 @@
 package com.epicqueststudios.cocktails.di.module
 
 import android.app.Application
+import com.epicqueststudios.cocktails.domain.CocktailOfTheDayUseCase
 import com.epicqueststudios.cocktails.domain.DownloadCocktailsUseCase
 import com.epicqueststudios.cocktails.presentation.viewmodels.CocktailViewModel
 import dagger.Module
@@ -20,7 +21,8 @@ class VMFactoryModule {
     @Provides
     fun provideMainViewModelFactory(
         app: Application,
-        useCase: DownloadCocktailsUseCase
-    ) = CocktailViewModel.Companion.Factory(app, useCase)
+        downloadCocktailsUseCase: DownloadCocktailsUseCase,
+        cocktailOfTheDayUseCase: CocktailOfTheDayUseCase
+    ) = CocktailViewModel.Companion.Factory(app, downloadCocktailsUseCase, cocktailOfTheDayUseCase)
 
 }

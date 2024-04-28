@@ -10,5 +10,6 @@ data class CocktailModel(
     val idDrink: String,
     @SerializedName("strDrink") val name: String,
     @SerializedName("strDrinkThumb") val image: String,
-    val strInstructions: String
+    @SerializedName("strInstructions") val instructions: String,
+    var isFavourite: Boolean = false
 )

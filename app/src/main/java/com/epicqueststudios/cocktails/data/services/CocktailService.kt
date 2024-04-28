@@ -8,5 +8,7 @@ interface CocktailService {
 
     @GET("search.php")
     suspend fun searchCocktails(@Query("s") searchTerm: String): CocktailResponse
+    @GET("random.php")
+    suspend fun downloadCocktailOfTheDay(): CocktailResponse
 
 }

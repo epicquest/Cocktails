@@ -55,11 +55,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
         val v = super.onCreateView(name, context, attrs)
-         v
-        cocktailViewModel.searchCocktails("rum")
+
         return v
     }
+
+    override fun onResume() {
+        super.onResume()
+        cocktailViewModel.getCocktailOfTheDay()
+    }
 }
+
 fun ComponentActivity.getApplicationComponent(): AppComponent? {
     application?.let {
         return (it as? MainApplication)?.appComponent
