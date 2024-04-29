@@ -1,7 +1,6 @@
 package com.epicqueststudios.cocktails.presentation.views
 
 import android.content.Context
-import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,10 +19,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
@@ -35,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.epicqueststudios.cocktails.R
-import com.epicqueststudios.cocktails.presentation.SearchState
+import com.epicqueststudios.cocktails.presentation.models.SearchState
 import com.epicqueststudios.cocktails.presentation.viewmodels.CocktailViewModel
 import timber.log.Timber
 
@@ -53,7 +50,7 @@ fun MainScreen(viewModel: CocktailViewModel, navController: NavHostController) {
                 modifier = Modifier.padding(16.dp),
                 onSearch = { query ->
                     Timber.d("Search query: $query")
-                    viewModel.searchCocktails(query)
+                    viewModel.searchCocktails(query ?: "")
                 },
                 onTextChange = {
                       viewModel.onTextChange(it)
@@ -65,23 +62,20 @@ fun MainScreen(viewModel: CocktailViewModel, navController: NavHostController) {
         if (cocktails.value.isEmpty()) {
             when(searchState.value) {
                 is SearchState.Error ->  Text( text = searchState.value.message ?: stringResource(R.string.error_message), style = MaterialTheme.typography.bodyMedium)
-                is SearchState.Idle -> Shimmer()
-                is SearchState.Loading ->  Shimmer()
-                is SearchState.Success ->  if (searchState.value.data?.isEmpty() == true) {
+                is SearchState.Idle -> {}
+                is SearchState.Loading ->  CircularProgressIndicator()
+                is SearchState.Success ->  if (searchState.value.data?.filterNotNull()?.isEmpty() == true) {
                     Text(text = stringResource(R.string.no_cocktails_found))
                 }
             }
-            /*if ((searchState.value is SearchState.Idle ))
-                Shimmer() //CircularProgressIndicator()
-            else
-                Text( text = stringResource(R.string.no_cocktails_found), style = MaterialTheme.typography.headlineMedium)
-                  */
         } else {
             LazyColumn {
                 items(cocktails.value) { cocktail ->
                     CocktailListItem(cocktail = cocktail) {
-                        viewModel.insertCocktail(cocktail)
-                        navController.navigate("detail_screen/${cocktail.idDrink}")
+                        if (cocktail != null) {
+                            viewModel.insertCocktail(cocktail)
+                            navController.navigate("detail_screen/${cocktail.idDrink}")
+                        }
                     }
                 }
             }
@@ -103,15 +97,15 @@ private fun SearchFieldPlaceholder() {
 @Composable
 fun SearchView(
     modifier: Modifier = Modifier,
-    onSearch: (String) -> Unit,
+    onSearch: (String?) -> Unit,
     onTextChange: (String) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val searchQuery = remember { mutableStateOf("") }
+    val searchQuery = remember { mutableStateOf<String?>(null) }
 
     TextField(
-        value = searchQuery.value,
+        value = searchQuery.value ?: "",
         onValueChange = {
             onTextChange(it)
             searchQuery.value = it
@@ -131,13 +125,13 @@ fun SearchView(
         },*/
         trailingIcon = {
             IconButton(onClick = {
-                if (searchQuery.value.isNotEmpty()) {
-                    searchQuery.value = ""
+                if (searchQuery.value != null) {
+                    searchQuery.value = null
                     onTextChange("")
                     keyboardController?.hide()
                 }
             }) {
-                if (searchQuery.value.isNotEmpty()) {
+                if (searchQuery.value != null) {
                     Icon(Icons.Filled.Clear, contentDescription = stringResource(R.string.search_clear) )
                 } else {
                     Icon(Icons.Default.Search, contentDescription = stringResource(R.string.start_search))

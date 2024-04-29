@@ -18,26 +18,44 @@ import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.epicqueststudios.cocktails.R
 import com.epicqueststudios.cocktails.data.models.CocktailModel
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun CocktailListItem(cocktail: CocktailModel, onItemClicked: () -> Unit) {
+fun CocktailListItem(cocktail: CocktailModel?, onItemClicked: () -> Unit) {
     Card {
         Column{
-            if (cocktail.isCocktailOfTheDay)
+            if (cocktail?.isCocktailOfTheDay == true)
                 Text(text = stringResource(R.string.cocktail_of_the_day), style = MaterialTheme.typography.titleMedium)
         }
 
-        Row(modifier = Modifier.padding(8.dp).clickable {
-            onItemClicked()
-        }) {
-            Image(
-                painter = rememberAsyncImagePainter(cocktail.image),
-                contentDescription = cocktail.name,
-                modifier = Modifier.size(80.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Text(text = cocktail.name, style = MaterialTheme.typography.bodyMedium)
+        Row(modifier = Modifier
+            .padding(8.dp)
+            .clickable {
+                onItemClicked()
+            }) {
+            if (cocktail != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(cocktail.image),
+                    contentDescription = cocktail.name,
+                    modifier = Modifier.size(80.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Column {
+                    Text(text = cocktail.name, style = MaterialTheme.typography.bodyMedium)
+                }
+            } else {
+                val shimmerInstance = rememberShimmer(ShimmerBounds.Custom)
+                Image(
+                    painter = rememberAsyncImagePainter(""),
+                    contentDescription = "",
+                    modifier = Modifier.shimmer(shimmerInstance).size(80.dp)
+                )
+                Spacer(modifier = Modifier.shimmer(shimmerInstance).width(8.dp))
+                Column {
+                    Text(text = "", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.shimmer(shimmerInstance))
+                }
             }
         }
     }

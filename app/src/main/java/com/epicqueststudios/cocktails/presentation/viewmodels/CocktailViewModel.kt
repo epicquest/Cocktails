@@ -14,7 +14,7 @@ import com.epicqueststudios.cocktails.di.module.AppModule
 import com.epicqueststudios.cocktails.di.module.VMFactoryModule
 import com.epicqueststudios.cocktails.domain.CocktailsUseCase
 import com.epicqueststudios.cocktails.domain.DownloadCocktailsUseCase
-import com.epicqueststudios.cocktails.presentation.SearchState
+import com.epicqueststudios.cocktails.presentation.models.SearchState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -45,15 +45,15 @@ class CocktailViewModel(app: Application,
     override val coroutineContext: CoroutineContext
         get() = uiContext + job
 
-    private val _cocktails = mutableStateOf<List<CocktailModel>>(emptyList())
-    val cocktails: State<List<CocktailModel>> = _cocktails
+    private val _cocktails = mutableStateOf<List<CocktailModel?>>(emptyList())
+    val cocktails: State<List<CocktailModel?>> = _cocktails
     private val _cocktailOfTheDay = mutableStateOf<CocktailModel?>(null)
     val cocktailOfTheDay: State<CocktailModel?> = _cocktailOfTheDay
     private val _selectedCocktail = mutableStateOf<CocktailModel?>(null)
     val selectedCocktail: State<CocktailModel?> = _selectedCocktail
 
-    private val _searchState = mutableStateOf<SearchState<List<CocktailModel>>>(SearchState.Idle())
-    val searchState: State<SearchState<List<CocktailModel>>> = _searchState
+    private val _searchState = mutableStateOf<SearchState<List<CocktailModel?>>>(SearchState.Idle())
+    val searchState: State<SearchState<List<CocktailModel?>>> = _searchState
     fun searchCocktails(searchTerm: String) {
         viewModelScope.launch {
             try {
@@ -82,13 +82,15 @@ class CocktailViewModel(app: Application,
         viewModelScope.launch {
             try {
                 val favorites = cocktailsUseCase.getFavourites()
-                _cocktails.value = favorites
+                _cocktails.value = listOf(null).plus(favorites)
                 cocktailsUseCase.getCocktailOfTheDay()?.also {
                     _cocktailOfTheDay.value = it
                     _cocktails.value = listOf(it).plus(favorites)
                 }
             } catch (e: Exception) {
                 Timber.e(e)
+                _cocktailOfTheDay.value = null
+                _cocktails.value = _cocktails.value.filterNotNull()
             }
         }
     }
