@@ -23,17 +23,18 @@ import com.epicqueststudios.cocktails.data.models.IngredientModel
 import com.epicqueststudios.cocktails.presentation.viewmodels.CocktailViewModel
 
 @Composable
-fun CocktailDetailScreen(
+fun DetailScreen(
     viewModel: CocktailViewModel,
     navController: NavHostController,
     id: String
 ) {
     val addText = stringResource(R.string.add_from_favorites)
     val removeText = stringResource(R.string.remove_from_favorites)
-    val btnFavorites = remember { mutableStateOf(addText) }
+    val btnFavorites = remember { mutableStateOf(addText ) }
     val cocktail = viewModel.selectedCocktail
+    btnFavorites.value = if (viewModel.selectedCocktail.value?.isFavourite == true) removeText else addText
 
-     Card {
+    Card {
          Column {
              Text(text = stringResource(R.string.cocktail_detail))
              if (cocktail.value == null) {
@@ -63,14 +64,33 @@ fun CocktailDetailScreen(
                      Text(text = btnFavorites.value)
                  }
              }
-             Button(onClick = { navController.popBackStack() }) {
+             Button(onClick = {
+                 navController.popBackStack()
+                 viewModel.getCocktailOfTheDayAndFavorites()
+             }) {
                  Text(text = "Go Back")
              }
          }
      }
 }
 
-private fun CocktailModel.ingredients(): List<IngredientModel> = listOf(IngredientModel(this.ingredient1, this.measure1)).filter { it.ingredient != null && it.measure != null }
+private fun CocktailModel.ingredients(): List<IngredientModel> = listOf(
+    IngredientModel(this.ingredient1, this.measure1),
+    IngredientModel(this.ingredient2, this.measure2),
+    IngredientModel(this.ingredient3, this.measure3),
+    IngredientModel(this.ingredient4, this.measure4),
+    IngredientModel(this.ingredient5, this.measure5),
+    IngredientModel(this.ingredient6, this.measure6),
+    IngredientModel(this.ingredient7, this.measure7),
+    IngredientModel(this.ingredient8, this.measure8),
+    IngredientModel(this.ingredient9, this.measure9),
+    IngredientModel(this.ingredient10, this.measure10),
+    IngredientModel(this.ingredient11, this.measure11),
+    IngredientModel(this.ingredient12, this.measure12),
+    IngredientModel(this.ingredient13, this.measure13),
+    IngredientModel(this.ingredient14, this.measure14),
+    IngredientModel(this.ingredient15, this.measure15)
+    ).filter { it.ingredient != null && it.measure != null }
 
 @Composable
 fun IngredientListItem(ingredient: IngredientModel) {

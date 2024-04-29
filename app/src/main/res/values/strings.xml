@@ -10,4 +10,5 @@
     <string name="cocktail_detail">Cocktail detail</string>
     <string name="remove_from_favorites">Remove from favorites</string>
     <string name="add_from_favorites">Add to favorites</string>
+    <string name="cocktail_of_the_day">Cocktail of the day</string>
 </resources>

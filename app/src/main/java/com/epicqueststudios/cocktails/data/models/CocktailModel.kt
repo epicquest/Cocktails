@@ -1,11 +1,12 @@
 package com.epicqueststudios.cocktails.data.models
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "cocktails")
-data class CocktailModel(
+data class CocktailModel constructor(
     @PrimaryKey(autoGenerate = false)
     val idDrink: String,
     @SerializedName("strDrink") val name: String,
@@ -44,5 +45,8 @@ data class CocktailModel(
     @SerializedName("strMeasure14") val measure14: String?,
     @SerializedName("strIngredient15") val ingredient15: String?,
     @SerializedName("strMeasure15") val measure15: String?,
-    var isFavourite: Boolean = false
-)
+    var isFavourite: Boolean = false,
+
+) {
+    @Ignore var isCocktailOfTheDay: Boolean = false
+}

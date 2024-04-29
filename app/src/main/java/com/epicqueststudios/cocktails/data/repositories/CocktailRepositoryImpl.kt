@@ -35,7 +35,7 @@ class CocktailRepositoryImpl(
         }
         val networkCocktails = cocktailService.downloadCocktailOfTheDay()
 
-        return favouriteCocktails.plus(networkCocktails.drinks ?: listOf())
+        return (networkCocktails.drinks ?: listOf()).plus(favouriteCocktails)
     }
 
     override suspend fun getCocktailOfTheDay(): CocktailResponse = cocktailService.downloadCocktailOfTheDay()

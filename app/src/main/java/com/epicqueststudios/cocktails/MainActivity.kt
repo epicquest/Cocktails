@@ -14,7 +14,6 @@ import com.epicqueststudios.cocktails.di.module.ActivityContextModule
 import com.epicqueststudios.cocktails.di.module.AppModule
 import com.epicqueststudios.cocktails.di.module.VMFactoryModule
 import com.epicqueststudios.cocktails.presentation.viewmodels.CocktailViewModel
-import com.epicqueststudios.cocktails.presentation.views.CocktailListScreen
 import com.epicqueststudios.cocktails.presentation.views.MainScreenNavigation
 import javax.inject.Inject
 

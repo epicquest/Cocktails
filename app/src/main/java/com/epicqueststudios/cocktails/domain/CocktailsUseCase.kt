@@ -5,7 +5,7 @@ import com.epicqueststudios.cocktails.data.repositories.CocktailRepository
 
 class CocktailsUseCase(private val repository: CocktailRepository) {
     suspend fun getCocktailOfTheDay(): CocktailModel? {
-        return repository.getCocktailOfTheDay().drinks?.first()
+        return repository.getCocktailOfTheDay().drinks?.first().also { it?.isCocktailOfTheDay = true }
     }
     suspend fun getFavourites(): List<CocktailModel> {
         return repository.getFavouriteCocktails()

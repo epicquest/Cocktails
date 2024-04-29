@@ -14,6 +14,7 @@ import com.epicqueststudios.cocktails.di.module.AppModule
 import com.epicqueststudios.cocktails.di.module.VMFactoryModule
 import com.epicqueststudios.cocktails.domain.CocktailsUseCase
 import com.epicqueststudios.cocktails.domain.DownloadCocktailsUseCase
+import com.epicqueststudios.cocktails.presentation.SearchState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -51,10 +52,18 @@ class CocktailViewModel(app: Application,
     private val _selectedCocktail = mutableStateOf<CocktailModel?>(null)
     val selectedCocktail: State<CocktailModel?> = _selectedCocktail
 
+    private val _searchState = mutableStateOf<SearchState<List<CocktailModel>>>(SearchState.Idle())
+    val searchState: State<SearchState<List<CocktailModel>>> = _searchState
     fun searchCocktails(searchTerm: String) {
         viewModelScope.launch {
-            _cocktails.value = listOf()
-            _cocktails.value = downloadImagesUseCase.getCocktails(searchTerm)
+            try {
+                _searchState.value = SearchState.Loading()
+                _cocktails.value = listOf()
+                _cocktails.value = downloadImagesUseCase.getCocktails(searchTerm)
+                _searchState.value = SearchState.Success(_cocktails.value)
+            } catch (e: Exception) {
+                _searchState.value = SearchState.Error(e.message)
+            }
         }
     }
     fun getCocktailOfTheDay() {
@@ -76,7 +85,7 @@ class CocktailViewModel(app: Application,
                 _cocktails.value = favorites
                 cocktailsUseCase.getCocktailOfTheDay()?.also {
                     _cocktailOfTheDay.value = it
-                    _cocktails.value = favorites.plus(it)
+                    _cocktails.value = listOf(it).plus(favorites)
                 }
             } catch (e: Exception) {
                 Timber.e(e)
@@ -90,6 +99,7 @@ class CocktailViewModel(app: Application,
         } else {
             getCocktailOfTheDayAndFavorites()
         }
+        _searchState.value = SearchState.Idle()
     }
 
     fun insertCocktail(item: CocktailModel) {
