@@ -90,7 +90,8 @@ class CocktailViewModel(app: Application,
             } catch (e: Exception) {
                 Timber.e(e)
                 _cocktailOfTheDay.value = null
-                _cocktails.value = _cocktails.value.filterNotNull()
+                //_cocktails.value = _cocktails.value.filterNotNull()
+                //_cocktails.value = _cocktails.value
             }
         }
     }

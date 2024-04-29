@@ -1,6 +1,5 @@
 package com.epicqueststudios.cocktails.presentation.views
 
-import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,11 +21,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,16 +40,13 @@ import timber.log.Timber
 @Composable
 fun MainScreen(viewModel: CocktailViewModel, navController: NavHostController) {
     val cocktails = viewModel.cocktails
-    val cocktailOfTheDay = viewModel.cocktailOfTheDay.value
     val searchState = viewModel.searchState
-    //var searchQuery by remember { mutableStateOf("") }
 
     Card {
     Column {
             SearchView(
                 modifier = Modifier.padding(16.dp),
                 onSearch = { query ->
-                    Timber.d("Search query: $query")
                     viewModel.searchCocktails(query ?: "")
                 },
                 onTextChange = {
@@ -90,7 +87,7 @@ private fun SearchFieldPlaceholder() {
     Text(
         text = stringResource(R.string.search),
         color = Color.Gray,
-        style = TextStyle.Default.copy(fontSize = 16.sp)
+        style = MaterialTheme.typography.titleMedium
     )
 }
 
@@ -113,16 +110,18 @@ fun SearchView(
         modifier = modifier.fillMaxWidth(),
         placeholder = { SearchFieldPlaceholder() },
         singleLine = true,
+        textStyle = TextStyle(
+            color = Color.Black,
+            fontSize = 21.sp
+        ),
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
         keyboardActions = KeyboardActions(onSearch = {
             onSearch(searchQuery.value)
             keyboardController?.hide()
         }),
-       /* leadingIcon = {
-            IconButton(onClick = { /* Handle leading icon click */ }) {
-                Icon(Icons.Default.Home, contentDescription = stringResource(R.string.search_cocktails))
-            }
-        },*/
+        leadingIcon = {
+           Icon(painterResource(R.drawable.ic_cocktail), contentDescription = stringResource(R.string.search_cocktails))
+        },
         trailingIcon = {
             IconButton(onClick = {
                 if (searchQuery.value != null) {
@@ -141,6 +140,3 @@ fun SearchView(
     )
 }
 
-fun closeKeyBoard(context: Context, focusManager: FocusManager) {
-
-}
