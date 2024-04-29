@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background_main">#FFA8CD9F</color>
+    <color name="background_main">#FFFF0000</color>
+    <color name="background_main2">#FFA8CD9F</color>
     <color name="background_detail">#FFA8CD9F</color>
-    <color name="purple_500">#FF496989</color>
+    <color name="button_background">#FF496989</color>
+    <color name="cocktail_item_background">@color/light_green2</color>
+    <color name="app_background">@color/dark_green</color>
     <color name="purple_700">#FF58A399</color>
     <color name="teal_200">#FFA8CD9F</color>
     <color name="green">#FF416D19</color>
-    <color name="dark_green">#FF173B18</color>
+    <color name="green_A0">#A0416D19</color>
+    <color name="dark_green">#FF073800</color>
     <color name="light_green">#FFC1E89B</color>
+    <color name="light_green2">#FFD7E1CA</color>
+    <color name="lineColor">#FF674600</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
 </resources>

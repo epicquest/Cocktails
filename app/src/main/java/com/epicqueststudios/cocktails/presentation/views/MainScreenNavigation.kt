@@ -28,7 +28,7 @@ fun MainScreenNavigation(viewModel: CocktailViewModel) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(color = colorResource(R.color.background_main)) // Set your desired background color here
+
             ) {
                 MainScreen(viewModel, navController)
             }
@@ -43,7 +43,7 @@ fun MainScreenNavigation(viewModel: CocktailViewModel) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(color = colorResource(R.color.background_detail)) // Set your desired background color here
+                    .background(color = colorResource(R.color.lineColor))
             ) {
                 DetailScreen(viewModel, navController, id ?: "")
             }

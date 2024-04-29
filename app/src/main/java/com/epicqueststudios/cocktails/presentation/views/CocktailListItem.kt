@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -27,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,18 +41,33 @@ import coil.request.ImageRequest
 import coil.size.Size
 import com.epicqueststudios.cocktails.R
 import com.epicqueststudios.cocktails.data.models.CocktailModel
+import com.epicqueststudios.cocktails.presentation.models.Resource
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 
 @Composable
-fun CocktailListItem(cocktail: CocktailModel?, onItemClicked: () -> Unit) {
+fun CocktailListItem(cocktailResource: Resource<CocktailModel>, onItemClicked: () -> Unit, retry: () -> Unit, ) {
     var imagePainterState by remember {
         mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty)
     }
+
+    val cardColors = CardColors (
+        containerColor= colorResource(id = R.color.cocktail_item_background),
+        contentColor = Color.Black,
+        disabledContainerColor = Color.LightGray,
+        disabledContentColor =  Color.DarkGray
+    )
+
+    val buttonColors = ButtonColors (
+        containerColor= colorResource(id = R.color.button_background),
+        contentColor = Color.Black,
+        disabledContainerColor = Color.LightGray,
+        disabledContentColor =  Color.DarkGray
+    )
     val imageLoader = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(cocktail?.image ?: "")
+            .data(cocktailResource.data?.image ?: "")
             .size(Size.ORIGINAL)
             .crossfade(true)
             .build(),
@@ -56,9 +76,9 @@ fun CocktailListItem(cocktail: CocktailModel?, onItemClicked: () -> Unit) {
             imagePainterState = state
         }
     )
-    Card {
+    Card(colors = cardColors, modifier = Modifier.padding(8.dp)) {
         Column {
-            if (cocktail?.isCocktailOfTheDay != false)
+            if (cocktailResource.data?.isCocktailOfTheDay == true)
                 Text(
                     text = stringResource(R.string.cocktail_of_the_day),
                     textAlign = TextAlign.Center,
@@ -72,43 +92,72 @@ fun CocktailListItem(cocktail: CocktailModel?, onItemClicked: () -> Unit) {
         }
 
         Row(modifier = Modifier
-            .padding(8.dp)
+            .padding(8.dp).fillMaxWidth()
             .clickable {
                 onItemClicked()
             }) {
-            if (cocktail != null) {
-                when (imagePainterState) {
-                    is AsyncImagePainter.State.Success ->
-                        Image(
-                            painter = imageLoader,
-                            contentDescription = cocktail.name,
-                            modifier = Modifier.size(dimensionResource(R.dimen.image_size))
-                        )
+            when (cocktailResource) {
+                is Resource.Success -> {
+                    val cocktail = cocktailResource.data!!
+                    when (imagePainterState) {
+                        is AsyncImagePainter.State.Success ->
+                            Image(
+                                painter = imageLoader,
+                                contentDescription = cocktail.name,
+                                modifier = Modifier.size(dimensionResource(R.dimen.image_size))
+                            )
 
-                    is AsyncImagePainter.State.Loading -> {
-                        val shimmerInstance = rememberShimmer(ShimmerBounds.Window)
-                        Box(
-                            modifier = Modifier
-                                .size(dimensionResource(id = R.dimen.image_size))
-                                .shimmer(shimmerInstance)
-                                .background(Color.Gray)
-                        )
+                        is AsyncImagePainter.State.Loading -> {
+                            val shimmerInstance = rememberShimmer(ShimmerBounds.Window)
+                            Box(
+                                modifier = Modifier
+                                    .size(dimensionResource(id = R.dimen.image_size))
+                                    .shimmer(shimmerInstance)
+                                    .background(Color.Gray)
+                            )
+                        }
+
+                        else ->
+                            Box(
+                                modifier = Modifier
+                                    .size(dimensionResource(id = R.dimen.image_size))
+                                    .background(Color.Gray)
+                            )
                     }
-                    else ->
-                        Box(
-                            modifier = Modifier
-                                .size(dimensionResource(id = R.dimen.image_size))
-                                .background(Color.Gray)
-                        )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column {
+                        Text(text = cocktail.name, style = MaterialTheme.typography.bodyMedium)
+                        Text(text = cocktail.name, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text(text = cocktail.name, style = MaterialTheme.typography.bodyMedium)
-                    Text(text = cocktail.name, style = MaterialTheme.typography.bodySmall)
+                is Resource.Loading -> {
+                    ShimmerItem()
                 }
-            } else {
-                ShimmerItem()
+
+                is Resource.Error -> {
+                    Column(modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = cocktailResource.message?: stringResource(id = R.string.unknown_error),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            color = Color.Red,
+                            fontWeight = Bold,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp))
+                        Button(
+                            onClick = {
+                            retry()
+                        }, colors = buttonColors
+                        ) {
+                            Text(text = stringResource(id = R.string.retry))
+                        }
+                    }
+                }
             }
         }
     }
@@ -117,8 +166,21 @@ fun CocktailListItem(cocktail: CocktailModel?, onItemClicked: () -> Unit) {
 
 @Preview
 @Composable
-fun PreviewCocktailListItem() {
+fun PreviewCocktailListItemSuccess() {
     CocktailListItem(
-        null
-    ) {}
+        Resource.Success(CocktailModel("1", "test name", "category name", "type of cocktail", "glass type", "url")), {}, {})
+}
+
+@Preview
+@Composable
+fun PreviewCocktailListItemError() {
+    CocktailListItem(
+        Resource.Error("error test"), {}, {})
+}
+
+@Preview
+@Composable
+fun PreviewCocktailListItemLoading() {
+    CocktailListItem(
+        Resource.Loading(), {}, {})
 }

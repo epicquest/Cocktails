@@ -2,44 +2,25 @@ package com.epicqueststudios.cocktails.data.repositories
 
 import com.epicqueststudios.cocktails.data.db.CocktailDao
 import com.epicqueststudios.cocktails.data.models.CocktailModel
-import com.epicqueststudios.cocktails.data.network.CocktailResponse
 import com.epicqueststudios.cocktails.data.services.CocktailService
+import com.epicqueststudios.cocktails.presentation.models.Resource
 
 class CocktailRepositoryImpl(
     private val cocktailService: CocktailService,
     private val cocktailDao: CocktailDao
 ): CocktailRepository() {
+    override suspend fun searchCocktails(searchTerm: String): List<Resource<CocktailModel>> =
+         (cocktailService.searchCocktails(searchTerm).drinks?: listOf())
+            .map { Resource.Success(it) }
 
-    override suspend fun getCocktails(searchTerm: String): List<CocktailModel> {
-        /*val cachedCocktails = cocktailDao.getCocktails()
-        if (cachedCocktails.isEmpty()) {
-            val response = cocktailService.searchCocktails(searchTerm)
-            cocktailDao.insertCocktails(response.drinks)
-            return response.drinks
-        } else {
-            return cachedCocktails
-        }*/
-
-        //if (cachedCocktails.isEmpty()) {
-         //   val networkCocktails = cocktailService.searchCocktails(searchTerm)
-         //   if (networkCocktails.drinks?.isNotEmpty() == true)
-         //       cocktailDao.insertCocktails(networkCocktails.drinks)
-       // }
-        return cocktailService.searchCocktails(searchTerm).drinks ?: listOf()
+    override suspend fun getCocktailOfTheDay(): Resource<CocktailModel>  {
+        val cocktail = cocktailService.downloadCocktailOfTheDay().drinks?.firstOrNull()
+        return if (cocktail != null) Resource.Success(cocktail) else Resource.Error(null)
     }
-
-    override suspend fun getCocktails(): List<CocktailModel> {
-        val favouriteCocktails = cocktailDao.getFavouritesCocktails()
-        if (favouriteCocktails.isNotEmpty()) {
-           // favouriteCocktails
-        }
-        val networkCocktails = cocktailService.downloadCocktailOfTheDay()
-
-        return (networkCocktails.drinks ?: listOf()).plus(favouriteCocktails)
+    override suspend fun getFavouriteCocktails(): List<Resource<CocktailModel>> =
+        cocktailDao.getFavouritesCocktails().map {
+        Resource.Success(it)
     }
-
-    override suspend fun getCocktailOfTheDay(): CocktailResponse = cocktailService.downloadCocktailOfTheDay()
-    override suspend fun getFavouriteCocktails(): List<CocktailModel> = cocktailDao.getFavouritesCocktails()
     override suspend fun insertCocktail(item: CocktailModel) = cocktailDao.insertCocktail(item)
 
 
@@ -48,7 +29,5 @@ class CocktailRepositoryImpl(
         return item
     }
 
-
     override suspend fun getCocktail(id: String) = cocktailDao.getCocktail(id)
-
 }

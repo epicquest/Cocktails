@@ -5,10 +5,13 @@
     <string name="search_cocktails">Search cocktails</string>
     <string name="search_clear">Clear search</string>
     <string name="start_search">Start search</string>
-    <string name="cocktails">Cocktails:</string>
-    <string name="error_message">Error occured! No data found</string>
+    <string name="your_cocktails">Your cocktails</string>
+    <string name="error_message">Error occurred! No data found</string>
     <string name="cocktail_detail">Cocktail detail</string>
     <string name="remove_from_favorites">Remove from favorites</string>
     <string name="add_from_favorites">Add to favorites</string>
     <string name="cocktail_of_the_day">Cocktail of the day</string>
+    <string name="unknown_error">Unknown error occurred!</string>
+    <string name="retry">click here to retry</string>
+
 </resources>

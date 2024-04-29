@@ -8,7 +8,7 @@ import com.epicqueststudios.cocktails.data.repositories.CocktailRepository
 import com.epicqueststudios.cocktails.data.repositories.CocktailRepositoryImpl
 import com.epicqueststudios.cocktails.data.services.CocktailService
 import com.epicqueststudios.cocktails.domain.CocktailsUseCase
-import com.epicqueststudios.cocktails.domain.DownloadCocktailsUseCase
+import com.epicqueststudios.cocktails.domain.SearchCocktailsUseCase
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -65,7 +65,7 @@ class NetworkModule {
     }
     @Singleton
     @Provides
-    fun provideDownloadCocktailsUseCase(repository: CocktailRepository): DownloadCocktailsUseCase = DownloadCocktailsUseCase(repository)
+    fun provideDownloadCocktailsUseCase(repository: CocktailRepository): SearchCocktailsUseCase = SearchCocktailsUseCase(repository)
 
     @Singleton
     @Provides

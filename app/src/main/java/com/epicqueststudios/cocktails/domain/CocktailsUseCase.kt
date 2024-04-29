@@ -2,12 +2,19 @@ package com.epicqueststudios.cocktails.domain
 
 import com.epicqueststudios.cocktails.data.models.CocktailModel
 import com.epicqueststudios.cocktails.data.repositories.CocktailRepository
+import com.epicqueststudios.cocktails.presentation.models.Resource
+import timber.log.Timber
 
 class CocktailsUseCase(private val repository: CocktailRepository) {
-    suspend fun getCocktailOfTheDay(): CocktailModel? {
-        return repository.getCocktailOfTheDay().drinks?.first().also { it?.isCocktailOfTheDay = true }
+    suspend fun getCocktailOfTheDay(): Resource<CocktailModel> {
+        return try {
+            repository.getCocktailOfTheDay().also { it.data?.isCocktailOfTheDay = true }
+        } catch (e: Exception) {
+            Timber.e(e)
+            Resource.Error(e.message)
+        }
     }
-    suspend fun getFavourites(): List<CocktailModel> {
+    suspend fun getFavourites(): List<Resource<CocktailModel>> {
         return repository.getFavouriteCocktails()
     }
     suspend fun insertCocktail(item: CocktailModel) {

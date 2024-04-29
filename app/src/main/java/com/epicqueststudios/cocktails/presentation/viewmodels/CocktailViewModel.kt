@@ -13,7 +13,8 @@ import com.epicqueststudios.cocktails.di.component.ViewModelComponent
 import com.epicqueststudios.cocktails.di.module.AppModule
 import com.epicqueststudios.cocktails.di.module.VMFactoryModule
 import com.epicqueststudios.cocktails.domain.CocktailsUseCase
-import com.epicqueststudios.cocktails.domain.DownloadCocktailsUseCase
+import com.epicqueststudios.cocktails.domain.SearchCocktailsUseCase
+import com.epicqueststudios.cocktails.presentation.models.Resource
 import com.epicqueststudios.cocktails.presentation.models.SearchState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,14 +26,13 @@ import kotlin.coroutines.CoroutineContext
 
 class CocktailViewModel(app: Application,
                         private var uiContext: CoroutineContext,
-                        private val downloadImagesUseCase: DownloadCocktailsUseCase,
+                        private val downloadImagesUseCase: SearchCocktailsUseCase,
                         private val cocktailsUseCase: CocktailsUseCase
     ) : ViewModel(), CoroutineScope {
 
-    lateinit var component: ViewModelComponent
+    private var component: ViewModelComponent
     @Inject
     lateinit var repository: CocktailRepository
-    var ioCoroutineContext = Dispatchers.IO
     private lateinit var job: Job
 
     init {
@@ -45,53 +45,37 @@ class CocktailViewModel(app: Application,
     override val coroutineContext: CoroutineContext
         get() = uiContext + job
 
-    private val _cocktails = mutableStateOf<List<CocktailModel?>>(emptyList())
-    val cocktails: State<List<CocktailModel?>> = _cocktails
-    private val _cocktailOfTheDay = mutableStateOf<CocktailModel?>(null)
-    val cocktailOfTheDay: State<CocktailModel?> = _cocktailOfTheDay
+    private val _cocktails = mutableStateOf<List<Resource<CocktailModel>>>(emptyList())
+    val cocktails: State<List<Resource<CocktailModel>>> = _cocktails
     private val _selectedCocktail = mutableStateOf<CocktailModel?>(null)
     val selectedCocktail: State<CocktailModel?> = _selectedCocktail
 
-    private val _searchState = mutableStateOf<SearchState<List<CocktailModel?>>>(SearchState.Idle())
-    val searchState: State<SearchState<List<CocktailModel?>>> = _searchState
+    private val _searchState = mutableStateOf<SearchState<List<CocktailModel>>>(SearchState.Idle())
+    val searchState: State<SearchState<List<CocktailModel>>> = _searchState
     fun searchCocktails(searchTerm: String) {
         viewModelScope.launch {
             try {
                 _searchState.value = SearchState.Loading()
                 _cocktails.value = listOf()
                 _cocktails.value = downloadImagesUseCase.getCocktails(searchTerm)
-                _searchState.value = SearchState.Success(_cocktails.value)
+                _searchState.value = SearchState.Success(_cocktails.value.map { it.data!! })
             } catch (e: Exception) {
                 _searchState.value = SearchState.Error(e.message)
             }
         }
     }
-    fun getCocktailOfTheDay() {
-        viewModelScope.launch {
-            try {
-                val cocktailOfTheDay = cocktailsUseCase.getCocktailOfTheDay()
-                //_cocktails.value = cocktailOfTheDay
-                _cocktailOfTheDay.value = cocktailOfTheDay
-            } catch (e: Exception) {
-                Timber.e(e)
-            }
-
-        }
-    }
     fun getCocktailOfTheDayAndFavorites() {
         viewModelScope.launch {
+            var favorites: List<Resource<CocktailModel>> = listOf()
             try {
-                val favorites = cocktailsUseCase.getFavourites()
-                _cocktails.value = listOf(null).plus(favorites)
-                cocktailsUseCase.getCocktailOfTheDay()?.also {
-                    _cocktailOfTheDay.value = it
+                favorites = cocktailsUseCase.getFavourites()
+                _cocktails.value = listOf(Resource.Loading<CocktailModel>()).plus(favorites)
+                cocktailsUseCase.getCocktailOfTheDay().also {
                     _cocktails.value = listOf(it).plus(favorites)
                 }
             } catch (e: Exception) {
                 Timber.e(e)
-                _cocktailOfTheDay.value = null
-                //_cocktails.value = _cocktails.value.filterNotNull()
-                //_cocktails.value = _cocktails.value
+                _cocktails.value = listOf<Resource<CocktailModel>>(Resource.Error(e.message)).plus(favorites)
             }
         }
     }
@@ -107,7 +91,7 @@ class CocktailViewModel(app: Application,
 
     fun insertCocktail(item: CocktailModel) {
         viewModelScope.launch {
-            val res = cocktailsUseCase.insertCocktail(item)
+            cocktailsUseCase.insertCocktail(item)
             _selectedCocktail.value = item
         }
     }
@@ -131,14 +115,14 @@ class CocktailViewModel(app: Application,
         @Suppress("UNCHECKED_CAST")
         class Factory(
             private val app: Application,
-            private val downloadCocktailsUseCase: DownloadCocktailsUseCase,
+            private val searchCocktailsUseCase: SearchCocktailsUseCase,
             private val cocktailsUseCase: CocktailsUseCase
         ) : ViewModelProvider.NewInstanceFactory() {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return CocktailViewModel(
                     app,
                     Dispatchers.Main,
-                    downloadCocktailsUseCase,
+                    searchCocktailsUseCase,
                     cocktailsUseCase
                 ) as T
             }
