@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="button_background">#FF496989</color>
+    <color name="button_background">@color/icon_color</color>
     <color name="cocktail_item_background">#D6F1FF</color>
     <color name="cocktail_of_the_day_badge">#006DA3</color>
+    <color name="icon_color">#006DA3</color>
     <color name="app_background">#ACE3FF</color>
     <color name="purple_700">#FF58A399</color>
     <color name="teal_200">#FFA8CD9F</color>
-    <color name="green">#FF416D19</color>
+    <color name="fillMaxWidth">#FF416D19</color>
     <color name="green_A0">#A0416D19</color>
     <color name="dark_green">#FF073800</color>
     <color name="light_green">#FFD6F0BC</color>

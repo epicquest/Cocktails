@@ -75,7 +75,7 @@ fun CocktailListItem(cocktailResource: Resource<CocktailModel>, onItemClicked: (
             imagePainterState = state
         }
     )
-    Card(colors = cardColors, modifier = Modifier.padding(8.dp)) {
+    Card(colors = cardColors, modifier = Modifier.padding(4.dp)) {
         Column {
             if (cocktailResource.data?.isCocktailOfTheDay == true)
                 Text(
@@ -125,8 +125,9 @@ fun CocktailListItem(cocktailResource: Resource<CocktailModel>, onItemClicked: (
 
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
-                        Text(text = cocktail.name, style = MaterialTheme.typography.bodyMedium)
-                        Text(text = cocktail.category, style = MaterialTheme.typography.bodySmall)
+                        Text(text = cocktail.name, style = MaterialTheme.typography.titleLarge)
+                        Text(text = cocktail.category, style = MaterialTheme.typography.bodyMedium)
+                        Text(text = cocktail.typeOfCocktail, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
 

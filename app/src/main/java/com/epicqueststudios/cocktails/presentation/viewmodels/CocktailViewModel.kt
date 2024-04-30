@@ -52,13 +52,18 @@ class CocktailViewModel(app: Application,
 
     private val _searchState = mutableStateOf<SearchState<List<CocktailModel>>>(SearchState.Idle())
     val searchState: State<SearchState<List<CocktailModel>>> = _searchState
+    private var lastSearchTerm: String? = null
+
+    fun searchCocktails() = searchCocktails(lastSearchTerm ?: "")
     fun searchCocktails(searchTerm: String) {
+        lastSearchTerm = searchTerm
         viewModelScope.launch {
             try {
                 _searchState.value = SearchState.Loading()
                 _cocktails.value = listOf()
                 _cocktails.value = downloadImagesUseCase.getCocktails(searchTerm)
                 _searchState.value = SearchState.Success(_cocktails.value.map { it.data!! })
+                lastSearchTerm = null
             } catch (e: Exception) {
                 _searchState.value = SearchState.Error(e.message)
             }
@@ -92,7 +97,6 @@ class CocktailViewModel(app: Application,
     fun insertCocktail(item: CocktailModel) {
         viewModelScope.launch {
             cocktailsUseCase.insertCocktail(item)
-            _selectedCocktail.value = item
         }
     }
     fun getCocktail(id: String) {

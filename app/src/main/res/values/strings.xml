@@ -13,5 +13,6 @@
     <string name="cocktail_of_the_day">Cocktail of the day</string>
     <string name="unknown_error">Unknown error occurred!</string>
     <string name="retry">click here to retry</string>
+    <string name="go_back">Go Back</string>
 
 </resources>
