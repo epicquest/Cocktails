@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -82,12 +81,11 @@ fun CocktailListItem(cocktailResource: Resource<CocktailModel>, onItemClicked: (
                 Text(
                     text = stringResource(R.string.cocktail_of_the_day),
                     textAlign = TextAlign.Center,
-                    color = colorResource(id = R.color.dark_green),
+                    color = colorResource(id = R.color.white),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxSize()
-                        .background(colorResource(id = R.color.light_green))
+                        .background(colorResource(id = R.color.cocktail_of_the_day_badge))
                 )
         }
 
@@ -128,7 +126,7 @@ fun CocktailListItem(cocktailResource: Resource<CocktailModel>, onItemClicked: (
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(text = cocktail.name, style = MaterialTheme.typography.bodyMedium)
-                        Text(text = cocktail.name, style = MaterialTheme.typography.bodySmall)
+                        Text(text = cocktail.category, style = MaterialTheme.typography.bodySmall)
                     }
                 }
 
@@ -163,7 +161,12 @@ fun CocktailListItem(cocktailResource: Resource<CocktailModel>, onItemClicked: (
     }
 }
 
-
+@Preview
+@Composable
+fun PreviewCocktailOfTheDayListItem() {
+    CocktailListItem(
+        Resource.Success(CocktailModel("1", "test name", "category name", "type of cocktail", "glass type", "url").apply { isCocktailOfTheDay = true }), {}, {})
+}
 @Preview
 @Composable
 fun PreviewCocktailListItemSuccess() {
@@ -175,7 +178,7 @@ fun PreviewCocktailListItemSuccess() {
 @Composable
 fun PreviewCocktailListItemError() {
     CocktailListItem(
-        Resource.Error("error test"), {}, {})
+        Resource.Error("error message"), {}, {})
 }
 
 @Preview

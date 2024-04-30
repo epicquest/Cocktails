@@ -1,16 +1,12 @@
 package com.epicqueststudios.cocktails.presentation.views
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import com.epicqueststudios.cocktails.R
 import com.epicqueststudios.cocktails.presentation.models.Resource
@@ -25,13 +21,6 @@ fun MainScreenList(
     val cocktails = viewModel.cocktails
     val searchState = viewModel.searchState
 
-    Text(
-        text = stringResource(R.string.your_cocktails),
-        color = Color.Yellow,
-        style = MaterialTheme.typography.headlineSmall,
-        textAlign = TextAlign.Center,
-        modifier= Modifier.fillMaxWidth()
-    )
     if (cocktails.value.isEmpty()) {
         when (searchState.value) {
             is SearchState.Error -> Text(

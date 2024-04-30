@@ -2,6 +2,8 @@ package com.epicqueststudios.cocktails.presentation.views
 
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,17 +12,29 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.size.Size
 import com.epicqueststudios.cocktails.R
 import com.epicqueststudios.cocktails.data.models.CocktailModel
 import com.epicqueststudios.cocktails.data.models.IngredientModel
 import com.epicqueststudios.cocktails.presentation.viewmodels.CocktailViewModel
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun DetailScreen(
@@ -28,12 +42,26 @@ fun DetailScreen(
     navController: NavHostController,
     id: String
 ) {
+    var imagePainterState by remember {
+        mutableStateOf<AsyncImagePainter.State>(AsyncImagePainter.State.Empty)
+    }
     val addText = stringResource(R.string.add_from_favorites)
     val removeText = stringResource(R.string.remove_from_favorites)
     val btnFavorites = remember { mutableStateOf(addText ) }
     val cocktail = viewModel.selectedCocktail
-    btnFavorites.value = if (viewModel.selectedCocktail.value?.isFavourite == true) removeText else addText
+    btnFavorites.value = if (cocktail.value?.isFavourite == true) removeText else addText
 
+    val imageLoader = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(cocktail.value?.image ?: "")
+            .size(Size.ORIGINAL)
+            .crossfade(true)
+            .build(),
+        contentScale = ContentScale.Crop,
+        onState = { state ->
+            imagePainterState = state
+        }
+    )
     Card {
          Column {
              Text(text = stringResource(R.string.cocktail_detail))
@@ -41,11 +69,33 @@ fun DetailScreen(
              Column {
                  Text(text = stringResource(R.string.error_message))
              } } else {
-                 Image(
-                     painter = rememberAsyncImagePainter(cocktail.value?.image),
-                     contentDescription = cocktail.value?.name,
-                     modifier = Modifier.size(80.dp)
-                 )
+                 when (imagePainterState) {
+                     is AsyncImagePainter.State.Success ->
+                         Image(
+                             painter = imageLoader,
+                             contentDescription = cocktail.value?.name,
+                             modifier = Modifier.size(dimensionResource(id = R.dimen.image_detail_size))
+                         )
+
+                     is AsyncImagePainter.State.Loading -> {
+                         val shimmerInstance = rememberShimmer(ShimmerBounds.Window)
+                         Box(
+                             modifier = Modifier
+                                 .size(dimensionResource(id = R.dimen.image_detail_size))
+                                 .shimmer(shimmerInstance)
+                                 .background(Color.Gray)
+                         )
+                     }
+
+                     else ->
+                         Box(
+                             modifier = Modifier
+                                 .size(dimensionResource(id = R.dimen.image_detail_size))
+                                 .background(Color.Gray)
+                         )
+                 }
+
+
                  Text(text = "Name: ${cocktail.value?.name}")
                  Text(text = "ID: ${cocktail.value?.idDrink}")
                  Text(text = "Category: ${cocktail.value?.category}")
