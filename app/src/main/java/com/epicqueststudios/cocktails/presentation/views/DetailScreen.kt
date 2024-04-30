@@ -47,7 +47,7 @@ fun DetailScreen(
 
     val buttonColors = ButtonColors(
         containerColor = colorResource(id = R.color.button_background),
-        contentColor = Color.Black,
+        contentColor = Color.White,
         disabledContainerColor = Color.LightGray,
         disabledContentColor = Color.DarkGray
     )

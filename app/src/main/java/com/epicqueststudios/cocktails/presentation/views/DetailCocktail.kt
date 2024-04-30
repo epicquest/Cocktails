@@ -102,7 +102,8 @@ fun DetailCocktail(cocktail: CocktailModel) {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(8.dp)
         ) {
-            Text(text = "Category:", style = MaterialTheme.typography.bodyMedium)
+            Text(text = "Category:",
+                style = MaterialTheme.typography.bodyMedium)
             Text(
                 text = cocktail.category,
                 style = MaterialTheme.typography.bodyLarge,
